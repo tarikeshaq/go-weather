@@ -10,7 +10,7 @@ import (
 
 const weatherEndPoint = `http://api.openweathermap.org/data/2.5/weather?q=`
 
-type weatherResponse struct {
+type WeatherResponse struct {
 	Coord struct {
 		Lon float64 `json:"lon"`
 		Lat float64 `json:"lat"`
@@ -53,15 +53,11 @@ type weatherResponse struct {
 }
 
 func GetTemp(city string) (string, error) {
-	resp, err := http.Get(weatherEndPoint + city + "&APPID=" + os.Getenv("WEATHER_KEY"))
+	weather, err := GetWeatherInfo(city)
 	if err != nil {
-		return "", fmt.Errorf("Could not get from api: %v", err)
+		return "", err
 	}
-	defer resp.Body.Close()
-	var weatherMap weatherResponse
-	decoder := json.NewDecoder(resp.Body)
-	decoder.Decode(&weatherMap)
-	temp := weatherMap.Main.Temp
+	temp := weather.Main.Temp
 	val := strconv.FormatFloat(temp, 'f', -1, 64)
 	if err != nil {
 		return "", fmt.Errorf("Could not parse tempreature: %v", err)
@@ -70,18 +66,26 @@ func GetTemp(city string) (string, error) {
 }
 
 func GetWind(city string) (string, error) {
-	resp, err := http.Get(weatherEndPoint + city + "&APPID=" + os.Getenv("WEATHER_KEY"))
+	weather, err := GetWeatherInfo(city)
 	if err != nil {
-		return "", fmt.Errorf("Could not get from api: %v", err)
+		return "", err
 	}
-	defer resp.Body.Close()
-	var weatherMap weatherResponse
-	decoder := json.NewDecoder(resp.Body)
-	decoder.Decode(&weatherMap)
-	wind := weatherMap.Wind.Speed
+	wind := weather.Wind.Speed
 	val := strconv.FormatFloat(wind, 'f', -1, 64)
 	if err != nil {
 		return "", fmt.Errorf("Could not parse wind speed: %v", err)
 	}
 	return val, nil
+}
+
+func GetWeatherInfo(city string) (*WeatherResponse, error) {
+	resp, err := http.Get(weatherEndPoint + city + "&APPID=" + os.Getenv("WEATHER_KEY"))
+	if err != nil {
+		return nil, fmt.Errorf("Could not get from api: %v", err)
+	}
+	defer resp.Body.Close()
+	var weather WeatherResponse
+	decoder := json.NewDecoder(resp.Body)
+	decoder.Decode(&weather)
+	return &weather, nil
 }
