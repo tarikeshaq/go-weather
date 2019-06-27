@@ -1,8 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
+	"strings"
+
+	"github.com/tarikeshaq/go-weather/api"
 
 	"github.com/spf13/cobra"
 )
@@ -12,9 +14,13 @@ func Execute() {
 		Use:   "go-weather",
 		Short: "A fast tool used to retrieve the weather",
 		Long:  ``,
-		Args:  cobra.MinimumNArgs(2),
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(args)
+			main, err := api.GetMain(strings.Join(args[:], "+"))
+			if err != nil {
+				log.Fatalf("Unable to retrieve weather: %v", err)
+			}
+			cmd.Printf("The weather today is: %s", main)
 		},
 	}
 	tempCmd := getTempCmd()

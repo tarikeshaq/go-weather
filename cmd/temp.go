@@ -30,7 +30,7 @@ func getTempCmd() *cobra.Command {
 func convertToC(temp string) string {
 	val, err := strconv.ParseFloat(temp, 64)
 	if err != nil {
-		log.Fatalf("Could not parse float: v", err)
+		log.Fatalf("Could not parse float: %v", err)
 	}
 	val = val - 273.15
 
