@@ -78,6 +78,19 @@ func GetWind(city string) (string, error) {
 	return val, nil
 }
 
+func GetMain(city string) (string, error) {
+	weather, err := GetWeatherInfo(city)
+	if err != nil {
+		return "", err
+	}
+
+	if len(weather.Weather) < 1 {
+		return "", fmt.Errorf("No main weather information available")
+	}
+
+	return weather.Weather[0].Main, nil
+}
+
 func GetWeatherInfo(city string) (*WeatherResponse, error) {
 	resp, err := http.Get(weatherEndPoint + city + "&APPID=" + os.Getenv("WEATHER_KEY"))
 	if err != nil {
